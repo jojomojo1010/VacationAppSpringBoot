@@ -26,9 +26,68 @@ public class DebtService {
         this.tripRepository = tripRepository;
         this.participantRepository = participantRepository;
         this.personRepository = personRepository;
+    }
+
+    public ArrayList<Debt> calculateFinalDebts(){
+        /*
+        Benötigen alle Schulden von allen Trips, wobei diejenigen Schulden mit den selben Personen zusammengefasst
+        werden sollen.
+        Für alle Trips:
+            berechne die Schulden des Trips
+        Schulden mit den selben Personen zusammenfassen
+         */
+        ArrayList<Persons> personList = personRepository.findAll();
+        ArrayList<Debt> finalDebts = new ArrayList<Debt>();
+        for (int i = 0 ; i < personList.size() ; i++){
+            for (int j=i+1 ; j <personList.size() ; j++){
+                Debt temp = new Debt(personList.get(i), personList.get(j),0);
+                finalDebts.add(temp);
+            }
         }
 
-        public ArrayList<Debt> calculateDebtByTrip(int tripid){
+        ArrayList<Debt> allDebts = new ArrayList<Debt>();
+        for (int k=1; k <= tripRepository.findAll().size(); k++) {
+            allDebts.addAll(calculateDebtByTrip(k));
+        }
+
+        mergeDebtsWithSamePersons(allDebts);
+        return finalDebts;
+    }
+
+    private void mergeDebtsWithSamePersons(ArrayList<Debt> allDebts) {
+        ArrayList<Debt> finalDebts = new ArrayList<Debt>();
+        HashMap<String,HashMap<String,Float>> debitorToCreditorToDebt = new HashMap<String,HashMap<String,Float>>();
+        for (Debt debt : allDebts){
+            addDebitorIfNotExists(debitorToCreditorToDebt, debt.debitor);
+            addNewDebt(debitorToCreditorToDebt, debt);
+        }
+        for (Map.Entry<String,HashMap<String,Float>> creditorToDebtEntry : debitorToCreditorToDebt.entrySet()){
+            for (Map.Entry<String, Float> debtEntry : creditorToDebtEntry.getValue().entrySet()){
+                String debitor = creditorToDebtEntry.getKey();
+                String creditor = debtEntry.getKey();
+                float credit = debtEntry.getValue();
+            }
+        }
+    }
+
+    private void addNewDebt(HashMap<String, HashMap<String, Float>> debitorToCreditorToDebt, Debt debt) {
+        HashMap<String,Float> creditorToDebt = debitorToCreditorToDebt.get(debt.debitor.name);
+        if (!creditorToDebt.containsKey(debt.creditor.name)){
+            creditorToDebt.put(debt.creditor.name,debt.credit);
+        }
+        else {
+            float currentcredit = creditorToDebt.get(debt.debitor.name);
+            creditorToDebt.put(debt.creditor.name, currentcredit + debt.credit);
+        }
+    }
+
+    private void addDebitorIfNotExists(HashMap<String, HashMap<String, Float>> currentDebts, Persons debitor) {
+        if (!currentDebts.containsKey(debitor.name)){
+            currentDebts.put(debitor.name, new HashMap<String,Float>());
+        }
+    }
+
+    private ArrayList<Debt> calculateDebtByTrip(int tripid){
             ArrayList<Debt> debtsOfTrip = new ArrayList<>();
             Trip currentTrip = tripRepository.findAllByTripId(tripid);
 
@@ -52,45 +111,11 @@ public class DebtService {
             return debtsOfTrip;
         }
 
-        public ArrayList<Debt> calculateFinalDebts(){
-            ArrayList<Debt> allDebts = new ArrayList<Debt>();
-            ArrayList<Debt> finalDebts = new ArrayList<Debt>();
-            ArrayList<Persons> personList = new ArrayList<Persons>();
-            personList.addAll(personRepository.findAll());
 
-            for (int i = 0 ; i < personList.size() ; i++){
-                for (int j=i+1 ; j <personList.size() ; j++){
-                    Debt temp = new Debt(personList.get(i), personList.get(j),0);
-                    finalDebts.add(temp);
-                }
-            }
-
-            for (int k=1; k <= tripRepository.findAll().size(); k++) {
-                allDebts.addAll(calculateDebtByTrip(k));
-            }
-
-            for (Debt finaldebt : finalDebts){
-                for (Debt tempdebt : allDebts){
-                    if (tempdebt.contains(finaldebt.creditor,finaldebt.debitor) && tempdebt.creditor.name == finaldebt.creditor.name)
-                        finaldebt.credit += tempdebt.credit;
-
-                    if (tempdebt.contains(finaldebt.creditor,finaldebt.debitor) && tempdebt.creditor.name != finaldebt.creditor.name)
-                        finaldebt.credit -= tempdebt.credit;
-                }
-
-            }
-            return finalDebts;
-        }
-
-        /*bissl mit deletemapping rumprobiert in debtcontroller, funzt noch nicht wirklich
+        //bissl mit deletemapping rumprobiert in debtcontroller, funzt noch nicht wirklich
         public ArrayList<Debt> calcFinalDebtWOParticipant(String name, int tripid){
-            participantRepository.deleteByNameAndTripID(name, tripid);
-            calculateDebtByTrip(tripid);
+            participantRepository.deleteByNameAndTripID(name,tripid);
             return calculateFinalDebts();
         }
 
-        public void calcblabla(){
-            //participantRepository.findAllByTripID(1).stream()
-        }*/
-
-    }
+}

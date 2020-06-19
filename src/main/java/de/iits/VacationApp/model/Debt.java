@@ -13,11 +13,9 @@ public class Debt {
     public float credit;
 
     public boolean contains(Persons x , Persons y){
-        if (x.name == this.creditor.name && y.name == this.debitor.name)
+        if (x.name.equals(this.creditor.name) && y.name.equals(this.debitor.name))
             return true;
-        if (x.name == this.debitor.name && y.name == this.creditor.name)
-            return true;
-        return false;
+        return x.name.equals(this.debitor.name) && y.name.equals(this.creditor.name);
     }
 
 

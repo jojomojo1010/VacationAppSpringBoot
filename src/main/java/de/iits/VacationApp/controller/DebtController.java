@@ -28,8 +28,8 @@ public class DebtController {
         return debtService.calculateFinalDebts();
     }
 
-    /*@DeleteMapping(value = "/{Joey}/{tripid}") //klappt noch nicht ganz
+    @DeleteMapping(value = "/{name}}/{tripid}") //klappt noch nicht ganz
     public ArrayList<Debt> getAllDebtsWOParticipant(@PathVariable String name, int tripid){
         return debtService.calcFinalDebtWOParticipant(name,tripid);
-    }*/
+    }
 }

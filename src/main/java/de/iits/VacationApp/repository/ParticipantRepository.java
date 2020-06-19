@@ -14,7 +14,7 @@ public interface ParticipantRepository extends CrudRepository<Participants, Inte
 
     ArrayList<Participants> findAllByTripID(int TripID);
 
-    ArrayList<Participants> deleteByNameAndTripID(String name, int TripID);
+    void deleteByNameAndTripID(String ParticipantID, int TripID);
 
 
 
