@@ -3,17 +3,14 @@ package de.iits.VacationApp.model;
 
 import lombok.ToString;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @Entity
 @ToString
 public class Participants {
     @Id
-    public int participantID;
-    public int tripID;
-    public String name;
-    public Boolean isCreditor;
+    public int userId;
+    public String userName;
+    public String password;
 }

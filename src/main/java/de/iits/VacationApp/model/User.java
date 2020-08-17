@@ -1,9 +1,9 @@
 package de.iits.VacationApp.model;
 
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 public class User {
